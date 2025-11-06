@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link href="http://localhost/analogRecords/includes/style/style.css" rel="stylesheet" type="text/css">
+  <link href="http://localhost/analog_records/includes/style/style.css" rel="stylesheet" type="text/css">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
   <title>shop </title>
 </head>
@@ -34,9 +34,9 @@
 
               echo '<ul class="dropdown-menu">';
               if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
-                echo "<li><a class='dropdown-item' href='http://localhost/analogRecords/admin/item/index.php'>item</a></li>";
-                echo "<li><a class='dropdown-item' href='http://localhost/analogRecords/admin/orders.php'>orders</a></li>";
-                echo "<li><a class='dropdown-item' href='http://localhost/analogRecords/admin/users.php'>Users</a></li>";
+                echo "<li><a class='dropdown-item' href='http://localhost/analog_records/admin/item/index.php'>item</a></li>";
+                echo "<li><a class='dropdown-item' href='http://localhost/analog_records/admin/orders.php'>orders</a></li>";
+                echo "<li><a class='dropdown-item' href='http://localhost/analog_records/admin/users.php'>Users</a></li>";
               } else {
                 echo '<li><a class="dropdown-item" href="./user/profile.php">profile</a></li>';
                 echo '<li><a class="dropdown-item" href="../user/myorders.php"> My Orders</a></li>';
@@ -57,13 +57,13 @@
         <?php
         if (!isset($_SESSION['user_id'])) {
           echo "<div class='navbar-nav ms-auto'>
-                        <a href='http://{$_SERVER['SERVER_NAME']}/analogRecords/user/login.php'  class='nav-item nav-link'>Login</a></div>";
+                        <a href='http://{$_SERVER['SERVER_NAME']}/analog_records/user/login.php'  class='nav-item nav-link'>Login</a></div>";
         } else {
           echo "<li class='nav-item'>
            <p>{$_SESSION['email']}</p>
           </li>";
           echo "<div class='navbar-nav ms-auto'>
-                        <a href='http://{$_SERVER['SERVER_NAME']}/analogRecords/user/logout.php'  class='nav-item nav-link'>Logout</a></div>";
+                        <a href='http://{$_SERVER['SERVER_NAME']}/analog_records/user/logout.php'  class='nav-item nav-link'>Logout</a></div>";
         }
         ?>
       </div>
