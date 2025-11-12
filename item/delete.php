@@ -1,49 +1,57 @@
 <?php
 session_start();
 include('../includes/config.php');
-include("../includes/header.php");
-include("../includes/footer.php");
 
-// Check if item_id is provided in URL (GET)
+// Check if item_id is provided
 if (isset($_GET['id'])) {
-    $item_id = intval($_GET['id']); // convert to integer for safety
+    $item_id = intval($_GET['id']); // Convert to integer for safety
 
-    // Step 1: Check if the item exists in the database
-    $check = $conn->prepare("SELECT image FROM item WHERE item_id = ?");
-    $check->bind_param("i", $item_id);
-    $check->execute();
-    $result = $check->get_result();
+    // Directory where images are stored
+    $uploadDir = '../images/';
 
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
+    // Step 1: Delete all images from item_images table
+    $stmt_imgs = $conn->prepare("SELECT image FROM item_images WHERE item_id = ?");
+    $stmt_imgs->bind_param("i", $item_id);
+    $stmt_imgs->execute();
+    $result_imgs = $stmt_imgs->get_result();
 
-        // Step 2: Delete the image file if it exists
-        $imagePath = "../uploads/" . $row['image'];
-        if (!empty($row['image']) && file_exists($imagePath)) {
-            unlink($imagePath);
+    if ($result_imgs->num_rows > 0) {
+        while ($img = $result_imgs->fetch_assoc()) {
+            $filePath = $uploadDir . $img['image'];
+            if (file_exists($filePath)) {
+                unlink($filePath); // delete file from server
+            }
         }
-
-        // Step 3: Delete the item from the database
-        $stmt = $conn->prepare("DELETE FROM item WHERE item_id = ?");
-        $stmt->bind_param("i", $item_id);
-
-        if ($stmt->execute()) {
-            $_SESSION['success'] = "Item deleted successfully.";
-        } else {
-            $_SESSION['error'] = "Failed to delete item. Please try again.";
-        }
-
-        $stmt->close();
-    } else {
-        $_SESSION['error'] = "Item not found in the database.";
     }
+    $stmt_imgs->close();
 
-    $check->close();
+    // Delete records from item_images table
+    $stmt_del_imgs = $conn->prepare("DELETE FROM item_images WHERE item_id = ?");
+    $stmt_del_imgs->bind_param("i", $item_id);
+    $stmt_del_imgs->execute();
+    $stmt_del_imgs->close();
+
+    // Step 2: Delete the item itself
+    $stmt_item = $conn->prepare("DELETE FROM item WHERE item_id = ?");
+    $stmt_item->bind_param("i", $item_id);
+    if ($stmt_item->execute()) {
+        $_SESSION['success'] = "Item deleted successfully.";
+    } else {
+        $_SESSION['error'] = "Failed to delete item. Please try again.";
+    }
+    $stmt_item->close();
+
+    // Step 3: Delete stock record
+    $stmt_stock = $conn->prepare("DELETE FROM stock WHERE item_id = ?");
+    $stmt_stock->bind_param("i", $item_id);
+    $stmt_stock->execute();
+    $stmt_stock->close();
+
 } else {
     $_SESSION['error'] = "Invalid request. No item selected.";
 }
 
-// Step 4: Redirect back to item list page
+// Redirect back to index
 header("Location: index.php");
 exit();
 ?>

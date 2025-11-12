@@ -4,63 +4,69 @@ include('./includes/header.php');
 include('./includes/config.php');
 include('./includes/alert.php');
 
-// CART VIEW
-if (isset($_SESSION["cart_products"]) && count($_SESSION["cart_products"]) > 0) {
-    echo '<div class="cart-view-table-front" id="view-cart">';
-    echo '<h3>Your Shopping Cart</h3>';
-    echo '<form method="POST" action="./cart/cart_update.php">';
-    echo '<table width="100%" cellpadding="6" cellspacing="0"><tbody>';
-    $total = 0;
-    $b = 0;
-    foreach ($_SESSION["cart_products"] as $cart_itm) {
-        $bg_color = ($b++ % 2 == 1) ? 'odd' : 'even';
-        $subtotal = $cart_itm["item_price"] * $cart_itm["item_qty"];
-        $total += $subtotal;
-        echo "<tr class='{$bg_color}'>";
-        echo "<td>Qty <input type='number' name='product_qty[{$cart_itm['item_id']}]' value='{$cart_itm['item_qty']}' /></td>";
-        echo "<td>{$cart_itm['item_name']}</td>";
-        echo "<td><input type='checkbox' name='remove_code[]' value='{$cart_itm['item_id']}' /> Remove</td>";
-        echo "</tr>";
-    }
-    echo "<tr><td colspan='4'><button type='submit'>Update</button><a href='./cart/view_cart.php' class='button'>Checkout</a></td></tr>";
-    echo "</tbody></table></form></div>";
-}
-
-// PRODUCTS
-$sql = "SELECT item_id, title, artist, genre, price, description, quantity, image 
-        FROM item WHERE quantity > 0 ORDER BY item_id ASC";
+// === PRODUCTS LIST ===
+$sql = "SELECT item_id, title, artist, genre, price, quantity 
+        FROM item 
+        WHERE quantity > 0 
+        ORDER BY item_id ASC";
 $results = mysqli_query($conn, $sql);
 
-if ($results) {
-    echo '<ul class="products">';
+if ($results && mysqli_num_rows($results) > 0) {
+    echo '<ul class="products" style="list-style:none; padding:0; display:flex; flex-wrap:wrap;">';
     while ($row = mysqli_fetch_assoc($results)) {
-        echo <<<EOT
-        <li class="product">
-            <form method="POST" action="./cart/cart_update.php">
-                <div class="product-content">
-                    <h3>{$row['title']}</h3>
-                    <div class="product-thumb"><img src="./images/{$row['image']}" width="100" height="100"></div>
-                    <div class="product-info">
-                        <p>Artist: {$row['artist']}</p>
-                        <p>Genre: {$row['genre']}</p>
-                        <p>Price: ₱{$row['price']}</p>
-                        <fieldset>
-                            <label><span>Quantity</span>
-                                <input type="number" name="item_qty" value="1" max="{$row['quantity']}" />
-                            </label>
-                        </fieldset>
-                        <input type="hidden" name="item_id" value="{$row['item_id']}" />
-                        <input type="hidden" name="type" value="add" />
-                        <div align="center"><button type="submit" class="add_to_cart">Add</button></div>
-                    </div>
-                </div>
-            </form>
-        </li>
-EOT;
+
+        // Fetch up to 3 images
+        $img_sql = "SELECT image FROM item_images WHERE item_id = ? LIMIT 3";
+        $stmt_img = mysqli_prepare($conn, $img_sql);
+        mysqli_stmt_bind_param($stmt_img, "i", $row['item_id']);
+        mysqli_stmt_execute($stmt_img);
+        $result_img = mysqli_stmt_get_result($stmt_img);
+
+        $images = [];
+        while ($img_row = mysqli_fetch_assoc($result_img)) {
+            $images[] = "./images/" . htmlspecialchars($img_row['image']);
+        }
+        mysqli_stmt_close($stmt_img);
+
+        echo '<li class="product" style="margin:10px; width:220px;">';
+        echo '<form method="POST" action="./cart/cart_update.php">';
+        echo '<div class="product-content">';
+        echo '<h3>' . htmlspecialchars($row['title']) . '</h3>';
+
+        // Display all images in a row
+        echo '<div class="product-images" style="display:flex; justify-content:center; gap:5px;">';
+        if (!empty($images)) {
+            foreach ($images as $img) {
+                echo '<img src="' . $img . '" style="width:60px; height:60px; object-fit:cover; border:1px solid #ccc; border-radius:5px;">';
+            }
+        } else {
+            echo '<img src="./images/no-image.png" style="width:60px; height:60px; object-fit:cover; border:1px solid #ccc; border-radius:5px;">';
+        }
+        echo '</div>';
+
+        // Product info
+        echo '<div class="product-info" style="margin-top:10px;">';
+        echo '<p>Artist: ' . htmlspecialchars($row['artist']) . '</p>';
+        echo '<p>Genre: ' . htmlspecialchars($row['genre']) . '</p>';
+        echo '<p>Price: ₱' . number_format($row['price'], 2) . '</p>';
+        echo '<fieldset>';
+        echo '<label>Quantity';
+        echo '<input type="number" name="item_qty" value="1" max="' . intval($row['quantity']) . '" min="1" />';
+        echo '</label>';
+        echo '</fieldset>';
+        echo '<input type="hidden" name="item_id" value="' . intval($row['item_id']) . '" />';
+        echo '<input type="hidden" name="type" value="add" />';
+        echo '<div align="center"><button type="submit" class="add_to_cart">Add to Cart</button></div>';
+        echo '</div>'; // .product-info
+
+        echo '</div>'; // .product-content
+        echo '</form>';
+        echo '</li>';
     }
     echo '</ul>';
+} else {
+    echo '<p class="text-muted">No products available.</p>';
 }
 
-include('./includes/footer.php');
+mysqli_close($conn);
 ?>
-

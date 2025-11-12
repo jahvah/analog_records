@@ -70,16 +70,18 @@ include('../includes/config.php');
                     required>
             </div>
 
-            <div class="form-group mb-3">
-                <label for="image">Upload Image</label>
-                <input type="file"
-                    class="form-control"
-                    id="image"
-                    name="image"
-                    accept="image/*"
-                    required>
-                <small class="form-text text-muted">Upload JPG or PNG file (max 5MB).</small>
-            </div>
+           <div class="form-group mb-3">
+    <label for="images">Upload Images</label>
+    <input type="file"
+           class="form-control"
+           id="images"
+           name="images[]"
+           accept="image/*"
+           multiple
+           required>
+    <small class="form-text text-muted">Upload JPG or PNG files (max 5MB each).</small>
+</div>
+
 
             <button type="submit" name="submit" class="btn btn-primary">Add Item</button>
             <a href="index.php" class="btn btn-secondary">Cancel</a>

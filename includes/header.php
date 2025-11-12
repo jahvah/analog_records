@@ -1,71 +1,82 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link href="http://localhost/analog_records/includes/style/style.css" rel="stylesheet" type="text/css">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-  <title>shop </title>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <title>Analog Records</title>
 </head>
 
 <body>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">My Shop</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <a class="navbar-brand" href="http://localhost/analog_records/index.php">Analog Records</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
+
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <!-- Left navigation -->
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="../index.php">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
-          </li>
-          <li class="nav-item dropdown">
-            <?php if (isset($_SESSION['user_id'])) {
-              echo '<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              admin
-            </a>';
-
-              echo '<ul class="dropdown-menu">';
-              if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
-                echo "<li><a class='dropdown-item' href='http://localhost/analog_records/admin/item/index.php'>item</a></li>";
-                echo "<li><a class='dropdown-item' href='http://localhost/analog_records/admin/orders.php'>orders</a></li>";
-                echo "<li><a class='dropdown-item' href='http://localhost/analog_records/admin/users.php'>Users</a></li>";
-              } else {
-                echo '<li><a class="dropdown-item" href="./user/profile.php">profile</a></li>';
-                echo '<li><a class="dropdown-item" href="../user/myorders.php"> My Orders</a></li>';
-              }
-              echo "</ul>";
-            }
-            ?>
-
-
-
+            <a class="nav-link active" aria-current="page" href="http://localhost/analog_records/index.php">Home</a>
           </li>
 
+          <?php if (isset($_SESSION['account_id'])): ?>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <?php echo (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') ? 'Admin' : 'Account'; ?>
+              </a>
+              <ul class="dropdown-menu">
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                  <li><a class="dropdown-item" href="http://localhost/analog_records/admin/item/index.php">Manage Items</a></li>
+                  <li><a class="dropdown-item" href="http://localhost/analog_records/admin/orders.php">Manage Orders</a></li>
+                  <li><a class="dropdown-item" href="http://localhost/analog_records/admin/users.php">Manage Users</a></li>
+                <?php else: ?>
+                  <li><a class="dropdown-item" href="http://localhost/analog_records/user/profileUser.php">My Profile</a></li>
+                  <li><a class="dropdown-item" href="http://localhost/analog_records/user/myorders.php">My Orders</a></li>
+                <?php endif; ?>
+              </ul>
+            </li>
+          <?php endif; ?>
         </ul>
-        <form action="search.php" method="GET" class="d-flex">
-          <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+
+        <!-- Search form -->
+        <form action="http://localhost/analog_records/user/search.php" method="GET" class="d-flex">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search">
+          <button class="btn btn-outline-success" type="submit">Search</button>
         </form>
-        <?php
-        if (!isset($_SESSION['user_id'])) {
-          echo "<div class='navbar-nav ms-auto'>
-                        <a href='http://{$_SERVER['SERVER_NAME']}/analog_records/user/login.php'  class='nav-item nav-link'>Login</a></div>";
-        } else {
-          echo "<li class='nav-item'>
-           <p>{$_SESSION['email']}</p>
-          </li>";
-          echo "<div class='navbar-nav ms-auto'>
-                        <a href='http://{$_SERVER['SERVER_NAME']}/analog_records/user/logout.php'  class='nav-item nav-link'>Logout</a></div>";
-        }
-        ?>
+
+        <!-- Right side: Login / Logout -->
+        <ul class="navbar-nav ms-auto">
+          <?php if (!isset($_SESSION['account_id'])): ?>
+            <li class="nav-item">
+              <a class="nav-link" href="http://localhost/analog_records/user/login.php">Login</a>
+            </li>
+          <?php else: ?>
+            <li class="nav-item">
+              <span class="nav-link mb-0">
+                <?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?>
+              </span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="http://localhost/analog_records/user/logout.php">Logout</a>
+            </li>
+          <?php endif; ?>
+        </ul>
       </div>
     </div>
   </nav>
+</body>
+</html>
