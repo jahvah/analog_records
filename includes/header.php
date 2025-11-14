@@ -40,9 +40,9 @@ if (session_status() === PHP_SESSION_NONE) {
               </a>
               <ul class="dropdown-menu">
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-                  <li><a class="dropdown-item" href="http://localhost/analog_records/admin/item/index.php">Manage Items</a></li>
+                  <li><a class="dropdown-item" href="http://localhost/analog_records/item/index.php">Manage Items</a></li>
                   <li><a class="dropdown-item" href="http://localhost/analog_records/admin/orders.php">Manage Orders</a></li>
-                  <li><a class="dropdown-item" href="http://localhost/analog_records/admin/users.php">Manage Users</a></li>
+                  <li><a class="dropdown-item" href="http://localhost/analog_records/userCrud/index.php">Manage Users</a></li>
                 <?php else: ?>
                   <li><a class="dropdown-item" href="http://localhost/analog_records/user/profileUser.php">My Profile</a></li>
                   <li><a class="dropdown-item" href="http://localhost/analog_records/user/myorders.php">My Orders</a></li>
@@ -53,7 +53,7 @@ if (session_status() === PHP_SESSION_NONE) {
         </ul>
 
         <!-- Search form -->
-        <form action="http://localhost/analog_records/user/search.php" method="GET" class="d-flex">
+        <form action="http://localhost/analog_records/index.php" method="GET" class="d-flex">
           <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search">
           <button class="btn btn-outline-success" type="submit">Search</button>
         </form>

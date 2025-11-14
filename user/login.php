@@ -16,7 +16,7 @@ if (isset($_POST['submit'])) {
 
     if (empty($errors)) {
         // Fetch account info
-        $sql = "SELECT account_id, email, password, role FROM accounts WHERE email=? LIMIT 1";
+        $sql = "SELECT account_id, email, password, role, status FROM accounts WHERE email=? LIMIT 1";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -25,7 +25,10 @@ if (isset($_POST['submit'])) {
         if ($result->num_rows === 1) {
             $row = $result->fetch_assoc();
 
-            if (password_verify($pass, $row['password'])) {
+            // Check account status first
+            if ($row['status'] !== 'active') {
+                $errors[] = "Your account is inactive. Please contact the administrator.";
+            } elseif (password_verify($pass, $row['password'])) {
                 // Set session variables
                 $_SESSION['account_id'] = $row['account_id'];
                 $_SESSION['email'] = $row['email'];

@@ -5,11 +5,34 @@ include('./includes/config.php');
 include('./includes/alert.php');
 
 // === PRODUCTS LIST ===
-$sql = "SELECT item_id, title, artist, genre, price, quantity 
-        FROM item 
-        WHERE quantity > 0 
-        ORDER BY item_id ASC";
-$results = mysqli_query($conn, $sql);
+$search = $_GET['search'] ?? '';
+
+// If search is used
+if (!empty($search)) {
+    $sql = "SELECT item_id, title, artist, genre, price, quantity 
+            FROM item 
+            WHERE quantity > 0 
+              AND (title LIKE ? OR artist LIKE ? OR genre LIKE ?)
+            ORDER BY item_id ASC";
+
+    $stmt = $conn->prepare($sql);
+    $like = "%$search%";
+    $stmt->bind_param("sss", $like, $like, $like);
+    $stmt->execute();
+    $results = $stmt->get_result();
+
+    echo "<h3 class='mt-3'>Search results for: <strong>" . htmlspecialchars($search) . "</strong></h3>";
+
+} else {
+
+    // No search → show all items
+    $sql = "SELECT item_id, title, artist, genre, price, quantity 
+            FROM item 
+            WHERE quantity > 0 
+            ORDER BY item_id ASC";
+    $results = mysqli_query($conn, $sql);
+}
+
 
 if ($results && mysqli_num_rows($results) > 0) {
     echo '<ul class="products" style="list-style:none; padding:0; display:flex; flex-wrap:wrap;">';
