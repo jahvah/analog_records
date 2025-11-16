@@ -59,6 +59,8 @@ if (session_status() === PHP_SESSION_NONE) {
                   <li><a class="dropdown-item" href="http://localhost/analog_records/user/profileUser.php">My Profile</a></li>
                   <li><a class="dropdown-item" href="http://localhost/analog_records/cart/view_cart.php">My Cart</a></li>
                   <li><a class="dropdown-item" href="http://localhost/analog_records/cart/view_order.php">My Orders</a></li>
+                  <li><a class="dropdown-item" href="http://localhost/analog_records/cart/myreviews.php">My Reviews</a></li>
+
                 </ul>
               <?php endif; ?>
             </li>
