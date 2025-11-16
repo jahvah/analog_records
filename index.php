@@ -37,7 +37,7 @@ if ($results && mysqli_num_rows($results) > 0) {
 
     while ($row = mysqli_fetch_assoc($results)) {
 
-        // Fetch **only one image**
+        // Fetch only one image
         $img_sql = "SELECT image FROM item_images WHERE item_id = ? LIMIT 1";
         $stmt_img = mysqli_prepare($conn, $img_sql);
         mysqli_stmt_bind_param($stmt_img, "i", $row['item_id']);
@@ -53,13 +53,31 @@ if ($results && mysqli_num_rows($results) > 0) {
         echo '<li class="product" style="margin:10px; width:220px; border:1px solid #ddd; padding:10px; border-radius:5px; text-align:center;">';
         echo '<h3>' . htmlspecialchars($row['title']) . '</h3>';
 
-        // Show **one main image**
+        // Show main image
         echo '<div class="product-image" style="margin-bottom:10px;">';
         echo '<img src="' . $image . '" style="width:150px; height:150px; object-fit:cover; border:1px solid #ccc; border-radius:5px;">';
         echo '</div>';
 
-        // View button only
-        echo '<a href="./item/show.php?id=' . intval($row['item_id']) . '" class="view_product" style="display:inline-block; padding:5px 10px; border:1px solid #007bff; border-radius:5px; text-decoration:none; color:#007bff;">View</a>';
+        // === LOGIN CHECK FOR VIEW BUTTON ===
+        if (!isset($_SESSION['account_id'])) {
+
+            // User NOT logged in → alert + redirect to login
+            echo '<a href="http://localhost/analog_records/user/login.php"
+                    onclick="alert(\'Please login first.\')"
+                    class="view_product"
+                    style="display:inline-block; padding:5px 10px; border:1px solid red; border-radius:5px; text-decoration:none; color:red;">
+                    View
+                  </a>';
+
+        } else {
+
+            // User logged in → normal view button
+            echo '<a href="./item/show.php?id=' . intval($row['item_id']) . '" 
+                    class="view_product"
+                    style="display:inline-block; padding:5px 10px; border:1px solid #007bff; border-radius:5px; text-decoration:none; color:#007bff;">
+                    View
+                  </a>';
+        }
 
         echo '</li>';
     }
