@@ -12,36 +12,50 @@ $customer_id = $_SESSION['customer_id'];
 $success_message = '';
 $error_message = '';
 
-// Handle review update
+// ===================== UPDATE REVIEW =====================
 if (isset($_POST['update_review'])) {
     $review_id = intval($_POST['review_id']);
-    $rating = intval($_POST['rating']);
-    $review_text = $_POST['review_text'] ?? '';
+    $rating_input = $_POST['rating'] ?? '';
+    $review_text_input = $_POST['review_text'] ?? '';
 
-    // Ensure the review belongs to the customer
-    $stmt_check = $conn->prepare("SELECT review_id FROM item_reviews WHERE review_id = ? AND customer_id = ?");
+    // Check if the review belongs to this customer and fetch current values
+    $stmt_check = $conn->prepare("SELECT rating, review FROM item_reviews WHERE review_id = ? AND customer_id = ?");
     $stmt_check->bind_param("ii", $review_id, $customer_id);
     $stmt_check->execute();
-    $stmt_check->store_result();
+    $result_check = $stmt_check->get_result();
 
-    if ($stmt_check->num_rows > 0) {
+    if ($result_check->num_rows > 0) {
+
+        $current = $result_check->fetch_assoc();
+
+        // Keep current rating if blank
+        $rating = ($rating_input === '' ? $current['rating'] : intval($rating_input));
+
+        // Keep current review text if blank
+        $review_text = ($review_text_input === '' ? $current['review'] : $review_text_input);
+
+        // Run the update
         $stmt_update = $conn->prepare("UPDATE item_reviews SET rating = ?, review = ? WHERE review_id = ?");
         $stmt_update->bind_param("isi", $rating, $review_text, $review_id);
+
         if ($stmt_update->execute()) {
             $success_message = "Review updated successfully!";
         } else {
             $error_message = "Failed to update review.";
         }
+
         $stmt_update->close();
     } else {
         $error_message = "Invalid review.";
     }
+
     $stmt_check->close();
 }
 
-// Fetch all reviews of the customer
+// ===================== FETCH REVIEWS =====================
 $stmt_reviews = $conn->prepare("
-    SELECT r.review_id, r.rating, r.review, r.date_created, i.title, o.order_id, o.order_status
+    SELECT r.review_id, r.rating, r.review, r.date_created, 
+           i.title, o.order_id, o.order_status
     FROM item_reviews r
     JOIN item i ON r.item_id = i.item_id
     JOIN orderinfo o ON r.order_id = o.order_id
@@ -75,13 +89,13 @@ if ($error_message) echo "<div class='alert alert-warning text-center'>{$error_m
                     <div class="mb-2">
                         <label class="form-label">Rating (1-5)</label><br>
                         <small>Current: <?php echo $review['rating']; ?></small>
-                        <input type="number" name="rating" min="1" max="5" class="form-control" placeholder="Enter new rating">
+                        <input type="number" name="rating" min="1" max="5" class="form-control" placeholder="Enter new rating (leave blank to keep)">
                     </div>
 
                     <div class="mb-2">
                         <label class="form-label">Review</label><br>
                         <small>Current: <?php echo htmlspecialchars($review['review']); ?></small>
-                        <textarea name="review_text" class="form-control" rows="3" placeholder="Enter new review"></textarea>
+                        <textarea name="review_text" class="form-control" rows="3" placeholder="Enter new review (leave blank to keep)"></textarea>
                     </div>
 
                     <button type="submit" name="update_review" class="btn btn-success btn-sm">Update Review</button>
