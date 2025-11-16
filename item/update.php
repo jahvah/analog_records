@@ -135,32 +135,32 @@ if (isset($_POST['update'])) {
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>?id=<?= $item_id ?>" method="POST" enctype="multipart/form-data">
         <div class="mb-3">
             <label>Title</label>
-            <input type="text" name="title" class="form-control" placeholder="<?= htmlspecialchars($item['title']) ?>">
+            <input type="text" name="title" class="form-control" value="">
         </div>
 
         <div class="mb-3">
             <label>Artist</label>
-            <input type="text" name="artist" class="form-control" placeholder="<?= htmlspecialchars($item['artist']) ?>">
+            <input type="text" name="artist" class="form-control" value="">
         </div>
 
         <div class="mb-3">
             <label>Genre</label>
-            <input type="text" name="genre" class="form-control" placeholder="<?= htmlspecialchars($item['genre']) ?>">
+            <input type="text" name="genre" class="form-control" value="">
         </div>
 
         <div class="mb-3">
             <label>Price</label>
-            <input type="text" name="price" class="form-control" placeholder="<?= htmlspecialchars($item['price']) ?>">
+            <input type="text" name="price" class="form-control" value="">
         </div>
 
         <div class="mb-3">
             <label>Description</label>
-            <textarea name="description" class="form-control" rows="3" placeholder="<?= htmlspecialchars($item['description']) ?>"></textarea>
+            <textarea name="description" class="form-control" rows="3"></textarea>
         </div>
 
         <div class="mb-3">
             <label>Quantity</label>
-            <input type="number" name="quantity" class="form-control" placeholder="<?= htmlspecialchars($item['stock_qty']) ?>">
+            <input type="number" name="quantity" class="form-control" value="">
         </div>
 
         <div class="mb-3">

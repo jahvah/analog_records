@@ -16,14 +16,21 @@ if (isset($_POST['submit'])) {
     if (empty($title) || empty($price) || empty($quantity)) {
         echo "<div class='alert alert-danger'>Please fill out all required fields.</div>";
     } else {
-        // Insert item into main table
-        $sql = "INSERT INTO item (title, artist, genre, price, description, quantity)
-                VALUES (?, ?, ?, ?, ?, ?)";
+        // Insert item into main table (no quantity column anymore)
+        $sql = "INSERT INTO item (title, artist, genre, price, description)
+                VALUES (?, ?, ?, ?, ?)";
         $stmt = mysqli_prepare($conn, $sql);
-        mysqli_stmt_bind_param($stmt, "sssdsd", $title, $artist, $genre, $price, $description, $quantity);
+        mysqli_stmt_bind_param($stmt, "sssss", $title, $artist, $genre, $price, $description);
 
         if (mysqli_stmt_execute($stmt)) {
             $item_id = mysqli_insert_id($conn); // get the new item's ID
+
+            // Insert quantity into stock table
+            $sql_stock = "INSERT INTO stock (item_id, quantity) VALUES (?, ?)";
+            $stmt_stock = mysqli_prepare($conn, $sql_stock);
+            mysqli_stmt_bind_param($stmt_stock, "ii", $item_id, $quantity);
+            mysqli_stmt_execute($stmt_stock);
+            mysqli_stmt_close($stmt_stock);
 
             // ✅ MULTIPLE IMAGE UPLOAD SECTION
             if (isset($_FILES['images']) && !empty($_FILES['images']['name'][0])) {
@@ -66,47 +73,47 @@ mysqli_close($conn);
 ?>
 
 <body>
-    <div class="container mt-4">
-        <h3>Add New Item</h3>
-        <form method="POST" enctype="multipart/form-data">
-            <div class="mb-3">
-                <label>Title</label>
-                <input type="text" name="title" class="form-control" required>
-            </div>
+<div class="container mt-4">
+    <h3>Add New Item</h3>
+    <form method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label>Title</label>
+            <input type="text" name="title" class="form-control" required>
+        </div>
 
-            <div class="mb-3">
-                <label>Artist</label>
-                <input type="text" name="artist" class="form-control">
-            </div>
+        <div class="mb-3">
+            <label>Artist</label>
+            <input type="text" name="artist" class="form-control">
+        </div>
 
-            <div class="mb-3">
-                <label>Genre</label>
-                <input type="text" name="genre" class="form-control">
-            </div>
+        <div class="mb-3">
+            <label>Genre</label>
+            <input type="text" name="genre" class="form-control">
+        </div>
 
-            <div class="mb-3">
-                <label>Price</label>
-                <input type="number" step="0.01" name="price" class="form-control" required>
-            </div>
+        <div class="mb-3">
+            <label>Price</label>
+            <input type="number" step="0.01" name="price" class="form-control" required>
+        </div>
 
-            <div class="mb-3">
-                <label>Description</label>
-                <textarea name="description" class="form-control" rows="3"></textarea>
-            </div>
+        <div class="mb-3">
+            <label>Description</label>
+            <textarea name="description" class="form-control" rows="3"></textarea>
+        </div>
 
-            <div class="mb-3">
-                <label>Quantity</label>
-                <input type="number" name="quantity" class="form-control" required>
-            </div>
+        <div class="mb-3">
+            <label>Quantity</label>
+            <input type="number" name="quantity" class="form-control" required>
+        </div>
 
-            <div class="mb-3">
-                <label>Upload Images</label>
-                <input type="file" name="images[]" multiple class="form-control" accept="image/*">
-                <small class="text-muted">You can upload multiple images (JPEG, JPG, PNG).</small>
-            </div>
+        <div class="mb-3">
+            <label>Upload Images</label>
+            <input type="file" name="images[]" multiple class="form-control" accept="image/*">
+            <small class="text-muted">You can upload multiple images (JPEG, JPG, PNG).</small>
+        </div>
 
-            <button type="submit" name="submit" class="btn btn-primary">Add Item</button>
-        </form>
-    </div>
+        <button type="submit" name="submit" class="btn btn-primary">Add Item</button>
+    </form>
+</div>
 </body>
 </html>

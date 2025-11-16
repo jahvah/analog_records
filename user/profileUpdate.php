@@ -32,16 +32,13 @@ $success = $error = "";
 
 // Handle form submission
 if (isset($_POST['update'])) {
-    // Trim input
     $first_name = trim($_POST['first_name']);
     $last_name  = trim($_POST['last_name']);
     $contact    = trim($_POST['contact']);
     $address    = trim($_POST['address']);
     $image_name = $user['image']; // keep existing image
 
-    // Check if at least one field is being updated
     $isUpdated = false;
-
     if (!empty($first_name)) $isUpdated = true;
     if (!empty($last_name)) $isUpdated = true;
     if (!empty($contact)) $isUpdated = true;
@@ -51,10 +48,9 @@ if (isset($_POST['update'])) {
     if (!$isUpdated) {
         $error = "Please update at least one field before submitting.";
     } else {
-        // Handle file upload if image is provided
         if (!empty($_FILES['image']['name'])) {
             $target_dir = "../uploads/";
-            $file_name = basename($_FILES["image"]["name"]);
+            $file_name = time() . "_" . basename($_FILES["image"]["name"]);
             $target_file = $target_dir . $file_name;
             $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
@@ -72,17 +68,15 @@ if (isset($_POST['update'])) {
             }
         }
 
-        // Proceed with update if no error
         if (empty($error)) {
-            // Use previous values if fields are empty
             $first_name = !empty($first_name) ? $first_name : $user['first_name'];
             $last_name  = !empty($last_name) ? $last_name : $user['last_name'];
             $contact    = !empty($contact) ? $contact : $user['contact'];
             $address    = !empty($address) ? $address : $user['address'];
 
             $update_sql = "UPDATE customer_details 
-                           SET first_name = ?, last_name = ?, contact = ?, address = ?, image = ?
-                           WHERE account_id = ?";
+                        SET first_name = ?, last_name = ?, contact = ?, address = ?, image = ?
+                        WHERE account_id = ?";
             $update_stmt = $conn->prepare($update_sql);
             $update_stmt->bind_param("sssssi", $first_name, $last_name, $contact, $address, $image_name, $account_id);
 
@@ -100,7 +94,6 @@ if (isset($_POST['update'])) {
 <div class="container mt-5">
     <h2 class="mb-4">Update Profile</h2>
 
-    <!-- Display messages only on this page -->
     <?php if (!empty($error)): ?>
         <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
@@ -113,8 +106,8 @@ if (isset($_POST['update'])) {
             <!-- Profile Image -->
             <div class="text-center mb-3">
                 <img src="<?php echo !empty($user['image']) ? '../uploads/'.htmlspecialchars($user['image']) : '../uploads/default.png'; ?>" 
-                     alt="Profile Picture" class="rounded-circle mb-2" width="120" height="120">
-                <input type="file" name="image" class="form-control">
+                    alt="Profile Picture" class="rounded-circle mb-2" width="120" height="120">
+                <input type="file" name="image" class="form-control mt-2">
             </div>
 
             <!-- First Name -->
@@ -141,8 +134,11 @@ if (isset($_POST['update'])) {
                 <textarea name="address" class="form-control" id="address" placeholder="Enter address"></textarea>
             </div>
 
-            <button type="submit" name="update" class="btn btn-primary">Update Profile</button>
-            <a href="profile.php" class="btn btn-secondary">Cancel</a>
+            <!-- Buttons -->
+            <div class="d-flex gap-2">
+                <button type="submit" name="update" class="btn btn-primary">Update Profile</button>
+                <a href="http://localhost/analog_records/user/profileUser.php" class="btn btn-info">Go to My Profile</a>
+            </div>
         </form>
     </div>
 </div>

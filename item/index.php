@@ -13,15 +13,18 @@ include("../includes/header.php");
     // Display flash messages (success / error)
     if (isset($_SESSION['success'])) {
         echo "<div class='alert alert-success'>{$_SESSION['success']}</div>";
-        unset($_SESSION['success']); // remove after showing
+        unset($_SESSION['success']);
     }
     if (isset($_SESSION['error'])) {
         echo "<div class='alert alert-danger'>{$_SESSION['error']}</div>";
         unset($_SESSION['error']);
     }
 
-    // Fetch all items
-    $sql_items = "SELECT * FROM item ORDER BY item_id DESC";
+    // Fetch all items with stock (LEFT JOIN to include items without stock)
+    $sql_items = "SELECT i.*, IFNULL(s.quantity, 0) AS quantity
+                  FROM item i
+                  LEFT JOIN stock s ON i.item_id = s.item_id
+                  ORDER BY i.item_id DESC";
     $result_items = mysqli_query($conn, $sql_items);
 
     if (mysqli_num_rows($result_items) > 0) {
@@ -48,9 +51,9 @@ include("../includes/header.php");
             echo "<td>" . htmlspecialchars($row['genre']) . "</td>";
             echo "<td>₱" . number_format($row['price'], 2) . "</td>";
             echo "<td>" . htmlspecialchars($row['description']) . "</td>";
-            echo "<td>" . htmlspecialchars($row['quantity']) . "</td>";
+            echo "<td>" . intval($row['quantity']) . "</td>";
 
-            // ✅ DISPLAY MULTIPLE IMAGES
+            // Display images
             echo "<td>";
             $item_id = $row['item_id'];
             $sql_images = "SELECT image FROM item_images WHERE item_id = ?";
@@ -73,6 +76,7 @@ include("../includes/header.php");
             mysqli_stmt_close($stmt_images);
             echo "</td>";
 
+            // Actions
             echo "<td>
                     <a href='update.php?id=" . $row['item_id'] . "' class='btn btn-sm btn-primary'>Edit</a>
                     <a href='delete.php?id=" . $row['item_id'] . "' class='btn btn-sm btn-danger' 

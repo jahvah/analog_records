@@ -31,7 +31,13 @@ if (isset($_GET['id'])) {
     $stmt_del_imgs->execute();
     $stmt_del_imgs->close();
 
-    // Step 2: Delete the item itself
+    // Step 2: Delete stock record first
+    $stmt_stock = $conn->prepare("DELETE FROM stock WHERE item_id = ?");
+    $stmt_stock->bind_param("i", $item_id);
+    $stmt_stock->execute();
+    $stmt_stock->close();
+
+    // Step 3: Delete the item itself
     $stmt_item = $conn->prepare("DELETE FROM item WHERE item_id = ?");
     $stmt_item->bind_param("i", $item_id);
     if ($stmt_item->execute()) {
@@ -40,12 +46,6 @@ if (isset($_GET['id'])) {
         $_SESSION['error'] = "Failed to delete item. Please try again.";
     }
     $stmt_item->close();
-
-    // Step 3: Delete stock record
-    $stmt_stock = $conn->prepare("DELETE FROM stock WHERE item_id = ?");
-    $stmt_stock->bind_param("i", $item_id);
-    $stmt_stock->execute();
-    $stmt_stock->close();
 
 } else {
     $_SESSION['error'] = "Invalid request. No item selected.";

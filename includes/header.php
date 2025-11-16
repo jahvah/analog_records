@@ -20,7 +20,13 @@ if (session_status() === PHP_SESSION_NONE) {
 <body>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
-      <a class="navbar-brand" href="http://localhost/analog_records/index.php">Analog Records</a>
+      <!-- Home button: Goes to admin index if admin -->
+      <a class="navbar-brand" href="<?php 
+          echo (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') 
+                ? 'http://localhost/analog_records/admin/index.php' 
+                : 'http://localhost/analog_records/index.php'; 
+      ?>">Analog Records</a>
+
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -30,24 +36,31 @@ if (session_status() === PHP_SESSION_NONE) {
         <!-- Left navigation -->
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="http://localhost/analog_records/index.php">Home</a>
+            <a class="nav-link active" aria-current="page" href="<?php 
+                echo (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') 
+                      ? 'http://localhost/analog_records/admin/index.php' 
+                      : 'http://localhost/analog_records/index.php'; 
+            ?>">Home</a>
           </li>
 
           <?php if (isset($_SESSION['account_id'])): ?>
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <?php echo (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') ? 'Admin' : 'Account'; ?>
-              </a>
-              <ul class="dropdown-menu">
-                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-                  <li><a class="dropdown-item" href="http://localhost/analog_records/item/index.php">Manage Items</a></li>
-                  <li><a class="dropdown-item" href="http://localhost/analog_records/admin/orders.php">Manage Orders</a></li>
-                  <li><a class="dropdown-item" href="http://localhost/analog_records/userCrud/index.php">Manage Users</a></li>
-                <?php else: ?>
+              <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                <!-- Admin: direct links can be added later if needed -->
+                <a class="nav-link" href="http://localhost/analog_records/admin/index.php">
+                  Admin
+                </a>
+              <?php else: ?>
+                <!-- Regular customer dropdown -->
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Account
+                </a>
+                <ul class="dropdown-menu">
                   <li><a class="dropdown-item" href="http://localhost/analog_records/user/profileUser.php">My Profile</a></li>
-                  <li><a class="dropdown-item" href="http://localhost/analog_records/user/myorders.php">My Orders</a></li>
-                <?php endif; ?>
-              </ul>
+                  <li><a class="dropdown-item" href="http://localhost/analog_records/cart/view_cart.php">My Cart</a></li>
+                  <li><a class="dropdown-item" href="http://localhost/analog_records/cart/view_order.php">My Orders</a></li>
+                </ul>
+              <?php endif; ?>
             </li>
           <?php endif; ?>
         </ul>
